@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Call number:</strong>
+  <%= @book.call_number %>
+</p>
+
+<p>
+  <strong>Title:</strong>
+  <%= @book.title %>
+</p>
+
+<p>
+  <strong>Author:</strong>
+  <%= @book.author %>
+</p>
+
+<p>
+  <strong>Lender:</strong>
+  <%= @book.lender %>
+</p>
+
+<p>
+  <strong>Lender other:</strong>
+  <%= @book.lender_other %>
+</p>
+
+<p>
+  <strong>Date due:</strong>
+  <%= @book.date_due %>
+</p>
+
+<p>
+  <strong>Renew:</strong>
+  <%= @book.renew %>
+</p>
+
+<p>
+  <strong>Reminder:</strong>
+  <%= @book.reminder %>
+</p>
+
+<%= link_to 'Edit', edit_book_path(@book) %> |
+<%= link_to 'Back', books_path %>
