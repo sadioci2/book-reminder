@@ -2,6 +2,7 @@
 Simple application for demonstrating Rails and web concepts and technologies.
 
 ## Dependencies
+- ruby
 - mariadb
 
 ## Run database service
