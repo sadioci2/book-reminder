@@ -1,6 +1,6 @@
 describe Book do
   let(:book) do
-    described_class.new(
+    described_class.create(
       title: 'Test Book', author: 'Enthusiastic Writer', lender: 'Penn Libraries'
     )
   end
