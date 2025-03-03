@@ -1,32 +1,33 @@
-# Base image for dependencies
-FROM ruby:3.1 AS builder
+# Use the specific Ruby version from Gemfile
+FROM ruby:3.1.0 AS builder  
 
-# Set working directory
 WORKDIR /app
 
-# Install essential OS dependencies
+# Install dependencies
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     libpq-dev \
     nodejs \
     yarn
 
-# Copy only Gemfiles first to leverage Docker layer caching
+# Copy only Gemfiles first for caching
 COPY Gemfile Gemfile.lock ./
 
-# Install gems
-RUN bundle install --jobs 4 --without development test
+# Install the correct Bundler version before running bundle install
+RUN gem install bundler -v 2.3.3 && \
+    bundle config set --local without 'development test' && \
+    bundle install --jobs 4
 
-# Copy application source code
+# Copy the rest of the application
 COPY . .
 
-# Precompile assets (if the app has frontend assets)
+# Precompile assets
 RUN bundle exec rake assets:precompile
 
-# ---------------------------------
+# -----------------------
 # Final runtime image
-# ---------------------------------
-FROM ruby:3.1-slim
+# -----------------------
+FROM ruby:3.1.0-slim  
 
 WORKDIR /app
 
@@ -37,11 +38,10 @@ RUN apt-get update -qq && apt-get install -y \
     yarn && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy dependencies and application from the builder stage
+# Copy built app from builder stage
 COPY --from=builder /app /app
 
-# Expose the default Rails port
+# Expose port
 EXPOSE 3000
 
-# Set up entrypoint
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
