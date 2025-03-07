@@ -103,6 +103,7 @@
 # Use the specific Ruby version from Gemfile
 # Use the specific Ruby version from Gemfile
 # Use the specific Ruby version from Gemfile
+# Use the specific Ruby version from Gemfile
 FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
@@ -116,7 +117,7 @@ RUN apt-get update -qq && apt-get install -y \
     curl \
     libvips-dev \
     libreadline-dev \
-    libssl-dev \  # Ensure this is the correct package name for your base image
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only Gemfiles first for caching
@@ -148,8 +149,8 @@ RUN apt-get update -qq && apt-get install -y \
     curl \
     libvips-dev \
     libreadline-dev \
-    libssl-dev && \
-    rm -rf /var/lib/apt/lists/*
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy built app from builder stage
 COPY --from=builder /app /app
@@ -159,5 +160,4 @@ EXPOSE 3000
 
 # Default command (override if needed for testing)
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
-
 
