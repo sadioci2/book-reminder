@@ -1,5 +1,6 @@
 # Use the specific Ruby version from Gemfile
-FROM ruby:3.1.0 AS builder  
+# FROM ruby:3.1.0 AS builder
+FROM ubuntu
 
 WORKDIR /app
 
