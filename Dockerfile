@@ -101,6 +101,7 @@
 # CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
 
 # Use the specific Ruby version from Gemfile
+# Use the specific Ruby version from Gemfile
 FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
@@ -113,8 +114,8 @@ RUN apt-get update -qq && apt-get install -y \
     yarn \
     curl \
     libvips-dev \
-    libreadline-dev \  # Added this to resolve io-console errors
-    libssl-dev         # Added this for potential SSL-related issues during gem installs
+    libreadline-dev \
+    libssl-dev \  # Added this for potential SSL-related issues during gem installs
 
 # Copy only Gemfiles first for caching
 COPY Gemfile Gemfile.lock ./ 
@@ -144,7 +145,7 @@ RUN apt-get update -qq && apt-get install -y \
     yarn \
     curl \
     libvips-dev \
-    libreadline-dev \  # Added for runtime to ensure io-console is available
+    libreadline-dev \
     libssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
@@ -156,4 +157,5 @@ EXPOSE 3000
 
 # Default command (override if needed for testing)
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
 
