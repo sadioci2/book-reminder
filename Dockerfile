@@ -103,3 +103,5 @@ EXPOSE 3000
 # Default command (override if needed for testing)
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
 
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
