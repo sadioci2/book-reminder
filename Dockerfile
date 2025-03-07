@@ -14,9 +14,9 @@ RUN apt-get update -qq && apt-get install -y \
 COPY Gemfile Gemfile.lock ./ 
 
 # Install the correct Bundler version before running bundle install
-# RUN gem install bundler -v 2.3.3 && \
-#     bundle config set --local without 'production' && \
-#     bundle install --jobs 4
+RUN gem install bundler -v 2.3.3 && \
+    bundle config set --local without 'production' && \
+    bundle install --jobs 4
 
 # Copy the rest of the application
 COPY . .
