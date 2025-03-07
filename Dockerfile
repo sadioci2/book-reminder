@@ -1,6 +1,5 @@
 # Use the specific Ruby version from Gemfile
-# FROM ruby:3.1.0 AS builder
-FROM us-docker.pkg.dev/google-samples/containers/ruby:3.1.0 AS builder
+FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
 
