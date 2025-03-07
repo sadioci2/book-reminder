@@ -1,6 +1,6 @@
 # Use the specific Ruby version from Gemfile
 # FROM ruby:3.1.0 AS builder
-FROM gcr.io/library/ruby:3.1.0-slim
+FROM gcr.io/library/ruby:3.1.0-slim  AS builder
 
 WORKDIR /app
 
