@@ -33,7 +33,7 @@ WORKDIR /app
 
 # Install runtime dependencies
 RUN apt-get update -qq && apt-get install -y \
-    postgresql-client \
+    # postgresql-client \
     nodejs \
     yarn && \
     rm -rf /var/lib/apt/lists/*
