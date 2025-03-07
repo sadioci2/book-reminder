@@ -46,7 +46,7 @@
 
 # # Default command (override if needed for testing)
 # CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
-
+# Use the specific Ruby version from Gemfile
 FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
@@ -91,8 +91,8 @@ RUN apt-get update -qq && apt-get install -y \
     gnupg2 \
     && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install -y nodejs \
-    && npm install --global yarn \
-    && rm -rf /var/lib/apt/lists/*
+    && npm install --global yarn && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy built app from builder stage
 COPY --from=builder /app /app
@@ -102,5 +102,6 @@ EXPOSE 3000
 
 # Default command (override if needed for testing)
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
 
 
