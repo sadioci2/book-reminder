@@ -102,6 +102,7 @@
 
 # Use the specific Ruby version from Gemfile
 # Use the specific Ruby version from Gemfile
+# Use the specific Ruby version from Gemfile
 FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
@@ -115,7 +116,8 @@ RUN apt-get update -qq && apt-get install -y \
     curl \
     libvips-dev \
     libreadline-dev \
-    libssl-dev \  # Added this for potential SSL-related issues during gem installs
+    libssl-dev \  # Ensure this is the correct package name for your base image
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy only Gemfiles first for caching
 COPY Gemfile Gemfile.lock ./ 
