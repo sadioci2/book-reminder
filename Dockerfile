@@ -47,7 +47,6 @@
 # # Default command (override if needed for testing)
 # CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
 
-# Use the specific Ruby version from Gemfile
 FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
@@ -57,8 +56,11 @@ RUN apt-get update -qq && apt-get install -y \
     build-essential \
     libpq-dev \
     libmysqlclient-dev \  # Add MySQL client libraries
-    nodejs \
-    yarn
+    curl \
+    gnupg2 \
+    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install --global yarn
 
 # Copy only Gemfiles first for caching
 COPY Gemfile Gemfile.lock ./ 
@@ -85,9 +87,12 @@ WORKDIR /app
 RUN apt-get update -qq && apt-get install -y \
     postgresql-client \
     libmysqlclient-dev \  # Add MySQL client libraries
-    nodejs \
-    yarn && \
-    rm -rf /var/lib/apt/lists/*
+    curl \
+    gnupg2 \
+    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install --global yarn \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy built app from builder stage
 COPY --from=builder /app /app
