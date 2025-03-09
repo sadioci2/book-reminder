@@ -1,24 +1,84 @@
-# Stage 1: Build Stage
-FROM ruby:3.1.0-slim AS builder
+# # Stage 1: Build Stage
+# FROM ruby:3.1.0-slim AS builder
+# WORKDIR /app
+# # Install build tools and MariaDB dev libraries
+# RUN apt-get update -qq && apt-get install -y \
+#     build-essential \
+#     libmariadb-dev \
+#     && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
+# # Install specific Bundler version
+# RUN gem install bundler:2.3.3
+# COPY Gemfile Gemfile.lock ./
+# RUN bundle install
+
+# # Stage 2: Runtime Stage
+# FROM ruby:3.1.0-slim
+# WORKDIR /app
+# # Install MariaDB runtime libs
+# RUN apt-get update -qq && apt-get install -y \
+#     libmariadb3 \
+#     && rm -rf /var/lib/apt/lists/*
+# COPY --from=builder /usr/local/bundle /usr/local/bundle
+# COPY . .
+# EXPOSE 3000
+# CMD ["rails", "server", "-b", "0.0.0.0"]
+
+# FROM Ruby image
+FROM ruby:3.1.0 AS builder
+
 WORKDIR /app
-# Install build tools and MariaDB dev libraries
+
+# Install dependencies (add libmysqlclient-dev for mysql2)
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
-    libmariadb-dev \
-    && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
-# Install specific Bundler version
-RUN gem install bundler:2.3.3
-COPY Gemfile Gemfile.lock ./
-RUN bundle install
-
-# Stage 2: Runtime Stage
-FROM ruby:3.1.0-slim
-WORKDIR /app
-# Install MariaDB runtime libs
-RUN apt-get update -qq && apt-get install -y \
-    libmariadb3 \
+    libpq-dev \
+    nodejs \
+    yarn \
+    curl \
+    libvips-dev \
+    libreadline-dev \
+    libssl-dev \
+    libmysqlclient-dev \  # <-- Add this for mysql2 gem
     && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /usr/local/bundle /usr/local/bundle
+
+# Copy only Gemfiles first for caching
+COPY Gemfile Gemfile.lock ./
+
+# Install Bundler, and then the gems
+RUN gem install bundler -v 2.3.3 && \
+    bundle config set --local without 'production' && \
+    bundle install --jobs 4
+
+# Copy the rest of the application
 COPY . .
+
+# Precompile assets for production (if needed)
+RUN bundle exec rake assets:precompile
+
+# -----------------------
+# Final runtime image
+# -----------------------
+FROM ruby:3.1.0-slim  
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update -qq && apt-get install -y \
+    postgresql-client \
+    nodejs \
+    yarn \
+    curl \
+    libvips-dev \
+    libreadline-dev \
+    libssl-dev \
+    libmysqlclient-dev \  # <-- Also needed in the runtime image
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy built app from builder stage
+COPY --from=builder /app /app
+
+# Expose port
 EXPOSE 3000
-CMD ["rails", "server", "-b", "0.0.0.0"]
+
+# Default command (override if needed for testing)
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
