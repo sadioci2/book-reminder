@@ -110,22 +110,26 @@
 # -----------------------
 # Build stage
 # -----------------------
+# -----------------------
+# Build stage
+# -----------------------
 FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
 
 # Install dependencies
-RUN apt-get update -qq && apt-get install -y \
+RUN apt-get update -qq && \
+    apt-get install -y \
     build-essential \
-    ruby-dev \  # Fixed spacing issue here
+    ruby-dev \
     libpq-dev \
     nodejs \
     yarn \
     curl \
     libvips-dev \
     libreadline-dev \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+    libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Pre-install io-console to avoid bundler error
 RUN gem install io-console
@@ -152,15 +156,16 @@ FROM ruby:3.1.0-slim
 WORKDIR /app
 
 # Install runtime dependencies
-RUN apt-get update -qq && apt-get install -y \
+RUN apt-get update -qq && \
+    apt-get install -y \
     postgresql-client \
     nodejs \
     yarn \
     curl \
     libvips-dev \
     libreadline-dev \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+    libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy built app from builder stage
 COPY --from=builder /app /app
@@ -170,4 +175,5 @@ EXPOSE 3000
 
 # Default command (override if needed for testing)
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
 
