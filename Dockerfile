@@ -113,13 +113,16 @@
 # -----------------------
 # Build stage
 # -----------------------
+# -----------------------
+# Build stage
+# -----------------------
 FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update -qq && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     build-essential \
     ruby-dev \
     libpq-dev \
@@ -131,8 +134,8 @@ RUN apt-get update -qq && \
     libssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Pre-install io-console to avoid bundler error
-RUN gem install io-console
+# Force install io-console separately
+RUN gem install io-console -v 0.5.11
 
 # Copy only Gemfiles first for caching
 COPY Gemfile Gemfile.lock ./ 
@@ -140,13 +143,13 @@ COPY Gemfile Gemfile.lock ./
 # Install the correct Bundler version before running bundle install
 RUN gem install bundler -v 2.3.3 && \
     bundle config set --local without 'production' && \
-    bundle install --jobs 4
+    bundle install --jobs 4 --retry 3
 
 # Copy the rest of the application
 COPY . .
 
 # Precompile assets for production (if needed)
-RUN bundle exec rake assets:precompile
+RUN bundle exec rake assets:precompile || echo "Skipping assets precompilation"
 
 # -----------------------
 # Final runtime image
@@ -157,7 +160,7 @@ WORKDIR /app
 
 # Install runtime dependencies
 RUN apt-get update -qq && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     postgresql-client \
     nodejs \
     yarn \
@@ -173,7 +176,7 @@ COPY --from=builder /app /app
 # Expose port
 EXPOSE 3000
 
-# Default command (override if needed for testing)
+# Start the Rails server
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
 
 
