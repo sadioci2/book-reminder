@@ -104,6 +104,9 @@
 # Use the specific Ruby version from Gemfile
 # Use the specific Ruby version from Gemfile
 # Use the specific Ruby version from Gemfile
+# -----------------------
+# Build stage
+# -----------------------
 FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
@@ -111,6 +114,7 @@ WORKDIR /app
 # Install dependencies
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
+    ruby-dev \  # <-- Added this
     libpq-dev \
     nodejs \
     yarn \
@@ -119,6 +123,9 @@ RUN apt-get update -qq && apt-get install -y \
     libreadline-dev \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Pre-install io-console to avoid bundler error
+RUN gem install io-console
 
 # Copy only Gemfiles first for caching
 COPY Gemfile Gemfile.lock ./ 
