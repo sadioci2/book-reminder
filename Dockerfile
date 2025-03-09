@@ -107,6 +107,9 @@
 # -----------------------
 # Build stage
 # -----------------------
+# -----------------------
+# Build stage
+# -----------------------
 FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
@@ -114,7 +117,7 @@ WORKDIR /app
 # Install dependencies
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
-    ruby-dev \  # <-- Added this
+    ruby-dev \  # Fixed spacing issue here
     libpq-dev \
     nodejs \
     yarn \
