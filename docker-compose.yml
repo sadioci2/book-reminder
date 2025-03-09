@@ -1,1 +1,33 @@
+version: '3'
+services:
+  web:
+    build: .
+    command: rails s -b '0.0.0.0'
+    volumes:
+      - ".:/app"  # Bind mount the current directory to /app in the container
+      - "bundle_cache:/usr/local/bundle"  # Create a volume for bundler cache to persist across container restarts
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - app-network  # Connect the web service to the custom network
+  
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network  # Connect the db service to the custom network
+
+# Volumes definition for persisting data
+volumes:
+  bundle_cache:  # This volume will persist bundler cache
+
+# Networks definition for custom network
+networks:
+  app-network:
+    driver: bridge  # Default network driver
 
