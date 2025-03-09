@@ -38,8 +38,8 @@ RUN apt-get update -qq && apt-get install -y \
     libvips-dev \
     libreadline-dev \
     libssl-dev \
-    libmysqlclient-dev \  # <-- Add this for mysql2 gem
-    && rm -rf /var/lib/apt/lists/*
+    libmysqlclient-dev && \
+    rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
 
 # Copy only Gemfiles first for caching
 COPY Gemfile Gemfile.lock ./
@@ -71,14 +71,14 @@ RUN apt-get update -qq && apt-get install -y \
     libvips-dev \
     libreadline-dev \
     libssl-dev \
-    libmysqlclient-dev \  # <-- Also needed in the runtime image
-    && rm -rf /var/lib/apt/lists/*
+    libmysqlclient-dev && \
+    rm -rf /var/lib/apt/lists/*  # Clean up in the runtime image as well
 
 # Copy built app from builder stage
 COPY --from=builder /app /app
 
-# Expose port
+# Expose port for the Rails app
 EXPOSE 3000
 
-# Default command (override if needed for testing)
+# Default command to start the Rails server
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
