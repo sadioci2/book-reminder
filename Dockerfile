@@ -28,7 +28,7 @@ FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
 
-# Install dependencies (add default-mysql-client instead of libmysqlclient-dev)
+# Install dependencies (add libreadline-dev for io-console to install)
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -62,7 +62,7 @@ FROM ruby:3.1.0-slim
 
 WORKDIR /app
 
-# Install runtime dependencies
+# Install runtime dependencies (add libreadline-dev for io-console to work)
 RUN apt-get update -qq && apt-get install -y \
     postgresql-client \
     nodejs \
@@ -82,4 +82,5 @@ EXPOSE 3000
 
 # Default command to start the Rails server
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
 
