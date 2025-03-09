@@ -39,8 +39,8 @@ RUN apt-get update -qq && apt-get install -y \
     libreadline-dev \
     libssl-dev \
     libmysqlclient-dev \
-    libncurses5-dev \  # Added for IO-console compilation
-    && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
+    libncurses5-dev && \
+    rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
 
 # Copy Gemfile and Gemfile.lock first for better caching
 COPY Gemfile Gemfile.lock ./
@@ -84,5 +84,6 @@ EXPOSE 3000
 
 # Default command to run the Rails app
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
 
 
