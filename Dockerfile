@@ -28,7 +28,7 @@ FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
 
-# Install dependencies (add libreadline-dev for io-console to install)
+# Install dependencies (include libreadline-dev for io-console)
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -38,21 +38,22 @@ RUN apt-get update -qq && apt-get install -y \
     libvips-dev \
     libreadline-dev \
     libssl-dev \
-    default-mysql-client && \
-    rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
+    libmysqlclient-dev \
+    libncurses5-dev \  # Added for IO-console compilation
+    && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
 
-# Copy only Gemfiles first for caching
+# Copy Gemfile and Gemfile.lock first for better caching
 COPY Gemfile Gemfile.lock ./
 
-# Install Bundler, and then the gems
+# Install the specific bundler version
 RUN gem install bundler -v 2.3.3 && \
     bundle config set --local without 'production' && \
     bundle install --jobs 4
 
-# Copy the rest of the application
+# Copy the rest of the application files
 COPY . .
 
-# Precompile assets for production (if needed)
+# Precompile assets (optional for production images)
 RUN bundle exec rake assets:precompile
 
 # -----------------------
@@ -62,7 +63,7 @@ FROM ruby:3.1.0-slim
 
 WORKDIR /app
 
-# Install runtime dependencies (add libreadline-dev for io-console to work)
+# Install runtime dependencies
 RUN apt-get update -qq && apt-get install -y \
     postgresql-client \
     nodejs \
@@ -71,16 +72,17 @@ RUN apt-get update -qq && apt-get install -y \
     libvips-dev \
     libreadline-dev \
     libssl-dev \
-    default-mysql-client && \
-    rm -rf /var/lib/apt/lists/*  # Clean up in the runtime image as well
+    libmysqlclient-dev \
+    libncurses5-dev && \
+    rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
 
-# Copy built app from builder stage
+# Copy built application from builder stage
 COPY --from=builder /app /app
 
-# Expose port for the Rails app
+# Expose port for Rails
 EXPOSE 3000
 
-# Default command to start the Rails server
+# Default command to run the Rails app
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
 
 
