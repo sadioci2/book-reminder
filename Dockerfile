@@ -1,60 +1,24 @@
-# Use the Ruby 3.1.0 image as base
-FROM ruby:3.1.0 AS builder
-
+# Stage 1: Build Stage
+FROM ruby:3.1.0-slim AS builder
 WORKDIR /app
-
-# Install required dependencies for compiling gems with native extensions
+# Install build tools and MariaDB dev libraries
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
-    libpq-dev \
-    nodejs \
-    yarn \
-    curl \
-    libvips-dev \
-    libreadline-dev \
-    libssl-dev \
     libmariadb-dev \
-    libncurses5-dev \
-    libncurses-dev && \
-    rm -rf /var/lib/apt/lists/*  # Clean up after installation
-
-# Copy Gemfile and Gemfile.lock first for better caching
+    && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
+# Install specific Bundler version
+RUN gem install bundler:2.3.3
 COPY Gemfile Gemfile.lock ./
+RUN bundle install
 
-# Install bundler
-RUN gem install bundler -v 2.3.3
-
-# Install all gems including the debug gem which depends on io-console
-RUN bundle install --jobs 4
-
-# Copy the rest of the application files
-COPY . .
-
-# -----------------------
-# Final runtime image
-# -----------------------
-FROM ruby:3.1.0-slim  
-
+# Stage 2: Runtime Stage
+FROM ruby:3.1.0-slim
 WORKDIR /app
-
-# Install runtime dependencies for the slim image
+# Install MariaDB runtime libs
 RUN apt-get update -qq && apt-get install -y \
-    postgresql-client \
-    nodejs \
-    yarn \
-    curl \
-    libvips-dev \
-    libreadline-dev \
-    libssl-dev \
-    libmariadb-dev \
-    libncurses5-dev && \
-    rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
-
-# Copy built application from builder stage
-COPY --from=builder /app /app
-
-# Expose port for Rails
+    libmariadb3 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+COPY . .
 EXPOSE 3000
-
-# Default command to run the Rails app
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+CMD ["rails", "server", "-b", "0.0.0.0"]
