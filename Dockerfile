@@ -38,7 +38,7 @@ RUN apt-get update -qq && apt-get install -y \
     libvips-dev \
     libreadline-dev \
     libssl-dev \
-    libmysqlclient-dev \
+    libmariadb-dev \
     libncurses5-dev && \
     rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
 
@@ -72,7 +72,7 @@ RUN apt-get update -qq && apt-get install -y \
     libvips-dev \
     libreadline-dev \
     libssl-dev \
-    libmysqlclient-dev \
+    libmariadb-dev \
     libncurses5-dev && \
     rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
 
@@ -84,6 +84,4 @@ EXPOSE 3000
 
 # Default command to run the Rails app
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
-
-
 
