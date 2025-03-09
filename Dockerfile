@@ -28,7 +28,7 @@ FROM ruby:3.1.0 AS builder
 
 WORKDIR /app
 
-# Install dependencies (add libmysqlclient-dev for mysql2)
+# Install dependencies (add default-mysql-client instead of libmysqlclient-dev)
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -38,7 +38,7 @@ RUN apt-get update -qq && apt-get install -y \
     libvips-dev \
     libreadline-dev \
     libssl-dev \
-    libmysqlclient-dev && \
+    default-mysql-client && \
     rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
 
 # Copy only Gemfiles first for caching
@@ -71,7 +71,7 @@ RUN apt-get update -qq && apt-get install -y \
     libvips-dev \
     libreadline-dev \
     libssl-dev \
-    libmysqlclient-dev && \
+    default-mysql-client && \
     rm -rf /var/lib/apt/lists/*  # Clean up in the runtime image as well
 
 # Copy built app from builder stage
@@ -82,3 +82,4 @@ EXPOSE 3000
 
 # Default command to start the Rails server
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
